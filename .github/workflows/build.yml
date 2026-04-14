@@ -138,13 +138,13 @@ jobs:
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p "../${dist_root}"
-          find bin -type f \( -name 'kmod-amneziawg-*.apk' -o -name 'kmod-amneziawg_*.apk' \) -exec cp {} "../${dist_root}/" \;
+          find bin -type f \( -name 'kmod-amneziawg-*.ipk' -o -name 'kmod-amneziawg_*.ipk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-kmod-amneziawg
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
+          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
 
   build-luci:
     name: luci-proto-amneziawg
@@ -192,13 +192,13 @@ jobs:
           make package/awgopenwrt/luci-proto-amneziawg/clean
           make package/awgopenwrt/luci-proto-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p "../${dist_root}"
-          find bin -type f \( -name 'luci-proto-amneziawg-*.apk' -o -name 'luci-proto-amneziawg_*.apk' \) -exec cp {} "../${dist_root}/" \;
+          find bin -type f \( -name 'luci-proto-amneziawg-*.ipk' -o -name 'luci-proto-amneziawg_*.ipk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload LuCI artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-luci-proto-amneziawg
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
+          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
 
   build-tools:
     name: amneziawg-tools
@@ -243,13 +243,13 @@ jobs:
           make package/awgopenwrt/amneziawg-tools/clean
           make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
           mkdir -p "../${dist_root}"
-          find bin -type f \( -name 'amneziawg-tools-*.apk' -o -name 'amneziawg-tools_*.apk' \) -exec cp {} "../${dist_root}/" \;
+          find bin -type f \( -name 'amneziawg-tools-*.ipk' -o -name 'amneziawg-tools_*.ipk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-amneziawg-tools
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
+          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
 
   release:
     name: Publish release
@@ -284,9 +284,9 @@ jobs:
             kmod-amneziawg \
             luci-proto-amneziawg
           do
-            src="$(find release -type f \( -name "${pkg}*.apk" -o -name "${pkg}_*.apk" \) | head -n1)"
+            src="$(find release -type f \( -name "${pkg}*.ipk" -o -name "${pkg}_*.ipk" \) | head -n1)"
             test -n "${src}"
-            cp "${src}" "release-assets/openwrt-${BUILD_ID}-${pkg}.apk"
+            cp "${src}" "release-assets/openwrt-${BUILD_ID}-${pkg}.ipk"
           done
 
       - name: Publish GitHub release
@@ -294,4 +294,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ env.RELEASE_ID }}
-          files: release-assets/*.apk
+          files: release-assets/*.ipk

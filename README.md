@@ -51,9 +51,9 @@ GitHub Actions artifact names:
 
 GitHub release assets:
 
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.ipk`
 
 GitHub release title uses the same build id:
 
@@ -61,24 +61,24 @@ GitHub release title uses the same build id:
 
 ## Install on router
 
-This repo targets OpenWrt 25.12 routers with `apk`.
+This repo publishes OpenWrt package archives as `.ipk` files.
 
 Download the release assets and install them:
 
 ```sh
 TAG=<release-tag>
 
-curl -L -o /tmp/kmod-amneziawg.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk
-curl -L -o /tmp/amneziawg-tools.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk
-curl -L -o /tmp/luci-proto-amneziawg.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk
+curl -L -o /tmp/kmod-amneziawg.ipk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk
+curl -L -o /tmp/amneziawg-tools.ipk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk
+curl -L -o /tmp/luci-proto-amneziawg.ipk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.ipk
 
 apk add --allow-untrusted \
-  /tmp/kmod-amneziawg.apk \
-  /tmp/amneziawg-tools.apk \
-  /tmp/luci-proto-amneziawg.apk
+  /tmp/kmod-amneziawg.ipk \
+  /tmp/amneziawg-tools.ipk \
+  /tmp/luci-proto-amneziawg.ipk
 
 /etc/init.d/network restart
 ```
@@ -88,7 +88,7 @@ Replace `<release-tag>` with the tag you want to install, for example `25.12.2-m
 If you do not need the LuCI interface, install only:
 
 ```sh
-apk add --allow-untrusted /tmp/kmod-amneziawg.apk /tmp/amneziawg-tools.apk
+apk add --allow-untrusted /tmp/kmod-amneziawg.ipk /tmp/amneziawg-tools.ipk
 ```
 
 ## Build for another router
