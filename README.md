@@ -51,9 +51,12 @@ GitHub Actions artifact names:
 
 GitHub release assets:
 
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.ipk`
+- `openwrt-24.10.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk`
+- `openwrt-24.10.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk`
+- `openwrt-24.10.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.ipk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
 
 GitHub release title uses the same build id:
 
@@ -61,24 +64,30 @@ GitHub release title uses the same build id:
 
 ## Install on router
 
-This repo publishes OpenWrt package archives as `.ipk` files.
+This repo publishes OpenWrt package archives. OpenWrt 24.10.x uses `.ipk`; OpenWrt 25.12.x uses `.apk`.
 
 Download the release assets and install them:
 
 ```sh
 TAG=<release-tag>
+PKG_EXT=<ipk-or-apk>
+```
 
-curl -L -o /tmp/kmod-amneziawg.ipk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk
-curl -L -o /tmp/amneziawg-tools.ipk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk
-curl -L -o /tmp/luci-proto-amneziawg.ipk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.ipk
+Use `ipk` for OpenWrt `24.10.x` and `apk` for OpenWrt `25.12.x`.
+
+```sh
+
+curl -L -o /tmp/kmod-amneziawg.${PKG_EXT} \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-kmod-amneziawg.${PKG_EXT}
+curl -L -o /tmp/amneziawg-tools.${PKG_EXT} \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-amneziawg-tools.${PKG_EXT}
+curl -L -o /tmp/luci-proto-amneziawg.${PKG_EXT} \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-luci-proto-amneziawg.${PKG_EXT}
 
 apk add --allow-untrusted \
-  /tmp/kmod-amneziawg.ipk \
-  /tmp/amneziawg-tools.ipk \
-  /tmp/luci-proto-amneziawg.ipk
+  /tmp/kmod-amneziawg.${PKG_EXT} \
+  /tmp/amneziawg-tools.${PKG_EXT} \
+  /tmp/luci-proto-amneziawg.${PKG_EXT}
 
 /etc/init.d/network restart
 ```
@@ -88,7 +97,7 @@ Replace `<release-tag>` with the tag you want to install, for example `25.12.2-m
 If you do not need the LuCI interface, install only:
 
 ```sh
-apk add --allow-untrusted /tmp/kmod-amneziawg.ipk /tmp/amneziawg-tools.ipk
+apk add --allow-untrusted /tmp/kmod-amneziawg.${PKG_EXT} /tmp/amneziawg-tools.${PKG_EXT}
 ```
 
 ## Build for another router
@@ -133,6 +142,9 @@ Example for BPI-R3 on OpenWrt 24.10.2:
 - `subtarget = filogic`
 - `pkgarch = aarch64_cortex-a53`
 - `sdk_variant = gcc-13.3.0_musl`
+- `package_ext = ipk`
+
+The workflow derives `package_ext` automatically from `openwrt_release`; you do not enter it manually.
 
 For kernel packages, `openwrt_release`, `target`, `subtarget`, `pkgarch`, and `sdk_variant` must match the router firmware family exactly. If they do not, the kmod build will not fit that router.
 

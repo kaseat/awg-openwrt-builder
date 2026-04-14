@@ -46,6 +46,7 @@ jobs:
       subtarget: ${{ steps.resolve.outputs.subtarget }}
       pkgarch: ${{ steps.resolve.outputs.pkgarch }}
       sdk_variant: ${{ steps.resolve.outputs.sdk_variant }}
+      package_ext: ${{ steps.resolve.outputs.package_ext }}
       release_id: ${{ steps.resolve.outputs.release_id }}
       build_id: ${{ steps.resolve.outputs.build_id }}
     steps:
@@ -61,12 +62,26 @@ jobs:
             pkgarch="${{ inputs.pkgarch || 'aarch64_cortex-a53' }}"
             sdk_variant="${{ inputs.sdk_variant || 'gcc-14.3.0_musl' }}"
             release_id="${openwrt_release}-${target}-${subtarget}-${pkgarch}"
+            case "${openwrt_release}" in
+              24.10.*) package_ext="ipk" ;;
+              25.12.*) package_ext="apk" ;;
+              *)
+                echo "Unsupported OpenWrt release: ${openwrt_release}" >&2
+                exit 1
+                ;;
+            esac
           else
             tag="${GITHUB_REF_NAME}"
             IFS='-' read -r openwrt_release target subtarget pkgarch <<< "${tag}"
             case "${openwrt_release}" in
-              24.10.*) sdk_variant="gcc-13.3.0_musl" ;;
-              25.12.*) sdk_variant="gcc-14.3.0_musl" ;;
+              24.10.*)
+                sdk_variant="gcc-13.3.0_musl"
+                package_ext="ipk"
+                ;;
+              25.12.*)
+                sdk_variant="gcc-14.3.0_musl"
+                package_ext="apk"
+                ;;
               *)
                 echo "Unsupported OpenWrt release in tag: ${openwrt_release}" >&2
                 exit 1
@@ -82,6 +97,7 @@ jobs:
             echo "subtarget=${subtarget}"
             echo "pkgarch=${pkgarch}"
             echo "sdk_variant=${sdk_variant}"
+            echo "package_ext=${package_ext}"
             echo "release_id=${release_id}"
             echo "build_id=${build_id}"
           } >> "${GITHUB_OUTPUT}"
@@ -96,6 +112,7 @@ jobs:
       OPENWRT_SUBTARGET: ${{ needs.resolve.outputs.subtarget }}
       OPENWRT_PKGARCH: ${{ needs.resolve.outputs.pkgarch }}
       OPENWRT_SDK_VARIANT: ${{ needs.resolve.outputs.sdk_variant }}
+      OPENWRT_PACKAGE_EXT: ${{ needs.resolve.outputs.package_ext }}
       RELEASE_ID: ${{ needs.resolve.outputs.release_id }}
       BUILD_ID: ${{ needs.resolve.outputs.build_id }}
     steps:
@@ -138,13 +155,13 @@ jobs:
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p "${dist_root}"
-          find bin -type f \( -name 'kmod-amneziawg-*.ipk' -o -name 'kmod-amneziawg_*.ipk' \) -exec cp {} "${dist_root}/" \;
+          find bin -type f \( -name "kmod-amneziawg-*.${OPENWRT_PACKAGE_EXT}" -o -name "kmod-amneziawg_*.${OPENWRT_PACKAGE_EXT}" \) -exec cp {} "${dist_root}/" \;
 
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-kmod-amneziawg
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
+          path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
 
   build-luci:
     name: luci-proto-amneziawg
@@ -156,6 +173,7 @@ jobs:
       OPENWRT_SUBTARGET: ${{ needs.resolve.outputs.subtarget }}
       OPENWRT_PKGARCH: ${{ needs.resolve.outputs.pkgarch }}
       OPENWRT_SDK_VARIANT: ${{ needs.resolve.outputs.sdk_variant }}
+      OPENWRT_PACKAGE_EXT: ${{ needs.resolve.outputs.package_ext }}
       RELEASE_ID: ${{ needs.resolve.outputs.release_id }}
       BUILD_ID: ${{ needs.resolve.outputs.build_id }}
     steps:
@@ -192,13 +210,13 @@ jobs:
           make package/awgopenwrt/luci-proto-amneziawg/clean
           make package/awgopenwrt/luci-proto-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p "${dist_root}"
-          find bin -type f \( -name 'luci-proto-amneziawg-*.ipk' -o -name 'luci-proto-amneziawg_*.ipk' \) -exec cp {} "${dist_root}/" \;
+          find bin -type f \( -name "luci-proto-amneziawg-*.${OPENWRT_PACKAGE_EXT}" -o -name "luci-proto-amneziawg_*.${OPENWRT_PACKAGE_EXT}" \) -exec cp {} "${dist_root}/" \;
 
       - name: Upload LuCI artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-luci-proto-amneziawg
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
+          path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
 
   build-tools:
     name: amneziawg-tools
@@ -210,6 +228,7 @@ jobs:
       OPENWRT_SUBTARGET: ${{ needs.resolve.outputs.subtarget }}
       OPENWRT_PKGARCH: ${{ needs.resolve.outputs.pkgarch }}
       OPENWRT_SDK_VARIANT: ${{ needs.resolve.outputs.sdk_variant }}
+      OPENWRT_PACKAGE_EXT: ${{ needs.resolve.outputs.package_ext }}
       RELEASE_ID: ${{ needs.resolve.outputs.release_id }}
       BUILD_ID: ${{ needs.resolve.outputs.build_id }}
     steps:
@@ -243,13 +262,13 @@ jobs:
           make package/awgopenwrt/amneziawg-tools/clean
           make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
           mkdir -p "${dist_root}"
-          find bin -type f \( -name 'amneziawg-tools-*.ipk' -o -name 'amneziawg-tools_*.ipk' \) -exec cp {} "${dist_root}/" \;
+          find bin -type f \( -name "amneziawg-tools-*.${OPENWRT_PACKAGE_EXT}" -o -name "amneziawg-tools_*.${OPENWRT_PACKAGE_EXT}" \) -exec cp {} "${dist_root}/" \;
 
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-${{ env.BUILD_ID }}-amneziawg-tools
-          path: dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.ipk
+          path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
 
   release:
     name: Publish release
@@ -266,6 +285,7 @@ jobs:
       OPENWRT_SUBTARGET: ${{ needs.resolve.outputs.subtarget }}
       OPENWRT_PKGARCH: ${{ needs.resolve.outputs.pkgarch }}
       OPENWRT_SDK_VARIANT: ${{ needs.resolve.outputs.sdk_variant }}
+      OPENWRT_PACKAGE_EXT: ${{ needs.resolve.outputs.package_ext }}
       RELEASE_ID: ${{ needs.resolve.outputs.release_id }}
       BUILD_ID: ${{ needs.resolve.outputs.build_id }}
     steps:
@@ -284,9 +304,9 @@ jobs:
             kmod-amneziawg \
             luci-proto-amneziawg
           do
-            src="$(find release -type f \( -name "${pkg}*.ipk" -o -name "${pkg}_*.ipk" \) | head -n1)"
+            src="$(find release -type f \( -name "${pkg}*.${OPENWRT_PACKAGE_EXT}" -o -name "${pkg}_*.${OPENWRT_PACKAGE_EXT}" \) | head -n1)"
             test -n "${src}"
-            cp "${src}" "release-assets/openwrt-${BUILD_ID}-${pkg}.ipk"
+            cp "${src}" "release-assets/openwrt-${BUILD_ID}-${pkg}.${OPENWRT_PACKAGE_EXT}"
           done
 
       - name: Publish GitHub release
@@ -294,4 +314,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ env.RELEASE_ID }}
-          files: release-assets/*.ipk
+          files: "release-assets/*.${{ env.OPENWRT_PACKAGE_EXT }}"
