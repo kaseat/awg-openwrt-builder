@@ -55,7 +55,7 @@ jobs:
           mkdir -p sdk
           curl -L --fail --retry 3 --output sdk/sdk.tar.zst "${sdk_url}"
           tar -I zstd -xf sdk/sdk.tar.zst -C sdk
-          sdk_dir="$(find sdk -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
+          sdk_dir="$(find "$PWD/sdk" -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
           test -n "${sdk_dir}"
           printf '%s\n' "${sdk_dir}" > sdk/.dir
 
@@ -67,7 +67,6 @@ jobs:
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/kmod-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
-          make defconfig
           {
             echo "CONFIG_PACKAGE_kmod-amneziawg=m"
             echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m"
@@ -106,7 +105,7 @@ jobs:
           mkdir -p sdk
           curl -L --fail --retry 3 --output sdk/sdk.tar.zst "${sdk_url}"
           tar -I zstd -xf sdk/sdk.tar.zst -C sdk
-          sdk_dir="$(find sdk -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
+          sdk_dir="$(find "$PWD/sdk" -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
           test -n "${sdk_dir}"
           printf '%s\n' "${sdk_dir}" > sdk/.dir
 
