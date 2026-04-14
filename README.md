@@ -78,6 +78,34 @@ If you do not need the LuCI interface, install only:
 apk add --allow-untrusted /tmp/kmod-amneziawg.apk /tmp/amneziawg-tools.apk
 ```
 
+## Build for another router
+
+To build packages for a different OpenWrt router, you need four values:
+
+- `openwrt_release`
+- `target`
+- `subtarget`
+- `pkgarch`
+
+Get them from the router or from the OpenWrt download page for that device.
+
+From the router, run:
+
+```sh
+ubus call system board
+```
+
+Use the OpenWrt release that matches the firmware on the device. For kernel packages, the release and target must match the router ABI.
+
+Then run the GitHub Actions workflow manually and fill in the inputs:
+
+- `openwrt_release`: for example `25.12.2`
+- `target`: for example `mediatek`
+- `subtarget`: for example `filogic`
+- `pkgarch`: for example `aarch64_cortex-a53`
+
+If your second router is a different family, use its own target/subtarget/pkgarch tuple. The workflow will build the same three packages for that tuple and publish the assets with the corresponding names.
+
 ## Notes
 
 - `luci-proto-amneziawg` is the LuCI protocol/UI package.
