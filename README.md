@@ -33,10 +33,10 @@ GitHub Actions artifacts follow the same naming scheme, for example:
 - `openwrt-25.12.2-mediatek-filogic-amneziawg-tools`
 - `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg`
 
-GitHub release publishes one bundle per build:
+GitHub release publishes the same packages as individual assets:
 
-- `openwrt-25.12.2-mediatek-filogic-amneziawg-packages.tar.gz`
-
-The bundle contains all `.apk` files plus `SHA256SUMS`.
+- `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk`
+- `openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk`
+- `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk`
 
 You can extend it later with LuCI or additional protocols without changing the upstream source layout.
