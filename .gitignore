@@ -1,0 +1,9 @@
+.DS_Store
+bin/
+sdk/
+*.ipk
+*.tar.zst
+*.tar.gz
+*.manifest
+*.buildinfo
+

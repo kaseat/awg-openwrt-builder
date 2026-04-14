@@ -1,0 +1,151 @@
+name: Build AmneziaWG OpenWrt packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      openwrt_release:
+        description: OpenWrt release
+        default: "25.12.2"
+        required: true
+      target:
+        description: OpenWrt target
+        default: "mediatek"
+        required: true
+      subtarget:
+        description: OpenWrt subtarget
+        default: "filogic"
+        required: true
+      pkgarch:
+        description: OpenWrt package architecture
+        default: "aarch64_cortex-a53"
+        required: true
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  OPENWRT_RELEASE: ${{ inputs.openwrt_release || '25.12.2' }}
+  OPENWRT_TARGET: ${{ inputs.target || 'mediatek' }}
+  OPENWRT_SUBTARGET: ${{ inputs.subtarget || 'filogic' }}
+  OPENWRT_PKGARCH: ${{ inputs.pkgarch || 'aarch64_cortex-a53' }}
+  OPENWRT_SDK_VARIANT: gcc-14.3.0_musl
+  AWG_KERNEL_TAG: v1.0.20260329-2
+  AWG_KERNEL_HASH: db833b4bd2a464a43248f4603186b3d0d58c781ba49989a5b515451dcd3d8833
+  AWG_TOOLS_TAG: v1.0.20260223
+  AWG_TOOLS_HASH: ab09cfafe6c1e9a6260964a8ba5cb2d657cc23862eb0c29253305e532ac40a16
+
+jobs:
+  build-kmod:
+    name: kmod-amneziawg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+        with:
+          path: builder
+
+      - name: Download OpenWrt SDK
+        run: |
+          set -euo pipefail
+          sdk_name="openwrt-sdk-${OPENWRT_RELEASE}-${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}_${OPENWRT_SDK_VARIANT}.Linux-x86_64.tar.zst"
+          sdk_url="https://downloads.openwrt.org/releases/${OPENWRT_RELEASE}/targets/${OPENWRT_TARGET}/${OPENWRT_SUBTARGET}/${sdk_name}"
+          mkdir -p sdk
+          curl -L --fail --retry 3 --output sdk/sdk.tar.zst "${sdk_url}"
+          tar -I zstd -xf sdk/sdk.tar.zst -C sdk
+          sdk_dir="$(find sdk -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
+          test -n "${sdk_dir}"
+          printf '%s\n' "${sdk_dir}" > sdk/.dir
+
+      - name: Build kmod package
+        working-directory: sdk
+        run: |
+          set -euo pipefail
+          sdk_dir="$(cat .dir)"
+          mkdir -p "${sdk_dir}/package/awgopenwrt"
+          cp -a ../builder/packages/kmod-amneziawg "${sdk_dir}/package/awgopenwrt/"
+          cd "${sdk_dir}"
+          make defconfig
+          {
+            echo "CONFIG_PACKAGE_kmod-amneziawg=m"
+            echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m"
+            echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m"
+            echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m"
+            echo "CONFIG_PACKAGE_kmod-crypto-lib-curve25519=m"
+            echo "CONFIG_PACKAGE_kmod-udptunnel4=m"
+            echo "CONFIG_PACKAGE_kmod-udptunnel6=m"
+          } >> .config
+          make defconfig
+          make package/awgopenwrt/kmod-amneziawg/clean
+          make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
+          mkdir -p ../artifacts
+          find bin -type f -name 'kmod-amneziawg_*.ipk' -exec cp {} ../artifacts/ \;
+
+      - name: Upload kmod artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmod-amneziawg-${{ github.ref_name || 'manual' }}
+          path: sdk/artifacts/*.ipk
+
+  build-tools:
+    name: amneziawg-tools
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+        with:
+          path: builder
+
+      - name: Download OpenWrt SDK
+        run: |
+          set -euo pipefail
+          sdk_name="openwrt-sdk-${OPENWRT_RELEASE}-${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}_${OPENWRT_SDK_VARIANT}.Linux-x86_64.tar.zst"
+          sdk_url="https://downloads.openwrt.org/releases/${OPENWRT_RELEASE}/targets/${OPENWRT_TARGET}/${OPENWRT_SUBTARGET}/${sdk_name}"
+          mkdir -p sdk
+          curl -L --fail --retry 3 --output sdk/sdk.tar.zst "${sdk_url}"
+          tar -I zstd -xf sdk/sdk.tar.zst -C sdk
+          sdk_dir="$(find sdk -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
+          test -n "${sdk_dir}"
+          printf '%s\n' "${sdk_dir}" > sdk/.dir
+
+      - name: Build userspace package
+        working-directory: sdk
+        run: |
+          set -euo pipefail
+          sdk_dir="$(cat .dir)"
+          mkdir -p "${sdk_dir}/package/awgopenwrt"
+          cp -a ../builder/packages/amneziawg-tools "${sdk_dir}/package/awgopenwrt/"
+          cd "${sdk_dir}"
+          make defconfig
+          make package/awgopenwrt/amneziawg-tools/clean
+          make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
+          mkdir -p ../artifacts
+          find bin -type f -name 'amneziawg-tools_*.ipk' -exec cp {} ../artifacts/ \;
+
+      - name: Upload userspace artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amneziawg-tools-${{ github.ref_name || 'manual' }}
+          path: sdk/artifacts/*.ipk
+
+  release:
+    name: Publish release
+    needs:
+      - build-kmod
+      - build-tools
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: release/*.ipk
