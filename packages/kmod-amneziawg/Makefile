@@ -12,6 +12,11 @@ PKG_HASH:=db833b4bd2a464a43248f4603186b3d0d58c781ba49989a5b515451dcd3d8833
 
 include $(INCLUDE_DIR)/package.mk
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	[ ! -d "$(PKG_BUILD_DIR)/src" ] || $(CP) "$(PKG_BUILD_DIR)/src/." "$(PKG_BUILD_DIR)/"
+endef
+
 define KernelPackage/amneziawg
 	SECTION:=kernel
 	CATEGORY:=Kernel Modules
