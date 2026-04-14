@@ -19,6 +19,10 @@ on:
         description: OpenWrt package architecture
         default: "aarch64_cortex-a53"
         required: true
+      sdk_variant:
+        description: OpenWrt SDK variant
+        default: "gcc-14.3.0_musl"
+        required: true
   push:
     tags:
       - "*.*.*-*"
@@ -31,9 +35,9 @@ env:
   OPENWRT_TARGET: ${{ inputs.target || 'mediatek' }}
   OPENWRT_SUBTARGET: ${{ inputs.subtarget || 'filogic' }}
   OPENWRT_PKGARCH: ${{ inputs.pkgarch || 'aarch64_cortex-a53' }}
+  OPENWRT_SDK_VARIANT: ${{ inputs.sdk_variant || 'gcc-14.3.0_musl' }}
   RELEASE_ID: ${{ format('{0}-{1}-{2}-{3}', inputs.openwrt_release || '25.12.2', inputs.target || 'mediatek', inputs.subtarget || 'filogic', inputs.pkgarch || 'aarch64_cortex-a53') }}
   BUILD_ID: ${{ format('{0}_{1}_{2}_{3}', inputs.openwrt_release || '25.12.2', inputs.target || 'mediatek', inputs.subtarget || 'filogic', inputs.pkgarch || 'aarch64_cortex-a53') }}
-  OPENWRT_SDK_VARIANT: gcc-14.3.0_musl
   AWG_KERNEL_TAG: v1.0.20260329-2
   AWG_KERNEL_HASH: db833b4bd2a464a43248f4603186b3d0d58c781ba49989a5b515451dcd3d8833
   AWG_TOOLS_TAG: v1.0.20260223

@@ -84,12 +84,13 @@ apk add --allow-untrusted /tmp/kmod-amneziawg.apk /tmp/amneziawg-tools.apk
 
 ## Build for another router
 
-To build packages for a different OpenWrt router, you need four values:
+To build packages for a different OpenWrt router, you need five values:
 
 - `openwrt_release`
 - `target`
 - `subtarget`
 - `pkgarch`
+- `sdk_variant`
 
 Get them from the router or from the OpenWrt download page for that device.
 
@@ -107,8 +108,9 @@ Then run the GitHub Actions workflow manually and fill in the inputs:
 - `target`: for example `mediatek`
 - `subtarget`: for example `filogic`
 - `pkgarch`: for example `aarch64_cortex-a53`
+- `sdk_variant`: for example `gcc-14.3.0_musl` on OpenWrt 25.12.x, or `gcc-13.3.0_musl` on OpenWrt 24.10.x
 
-If your second router is a different family, use its own target/subtarget/pkgarch tuple. The workflow will build the same three packages for that tuple and publish the assets with the corresponding names.
+If your second router is a different family, use its own target/subtarget/pkgarch tuple and matching `sdk_variant`. The workflow will build the same three packages for that tuple and publish the assets with the corresponding names.
 
 For published releases, use the hyphenated release id as the Git tag:
 
