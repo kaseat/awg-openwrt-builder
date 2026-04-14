@@ -136,9 +136,12 @@ Example for BPI-R3 on OpenWrt 24.10.2:
 
 For kernel packages, `openwrt_release`, `target`, `subtarget`, `pkgarch`, and `sdk_variant` must match the router firmware family exactly. If they do not, the kmod build will not fit that router.
 
-For published releases, use the hyphenated release id as the Git tag:
+You can also trigger the same build by pushing a Git tag with the tuple name:
 
 - `25.12.2-mediatek-filogic-aarch64-cortex-a53`
+- `24.10.2-mediatek-filogic-aarch64-cortex-a53`
+
+The workflow reads the tuple from the tag, derives the SDK variant automatically for the supported releases, and publishes a release with the same tuple name.
 
 ## Notes
 
