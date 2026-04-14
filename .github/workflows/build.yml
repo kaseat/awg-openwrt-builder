@@ -31,6 +31,7 @@ env:
   OPENWRT_TARGET: ${{ inputs.target || 'mediatek' }}
   OPENWRT_SUBTARGET: ${{ inputs.subtarget || 'filogic' }}
   OPENWRT_PKGARCH: ${{ inputs.pkgarch || 'aarch64_cortex-a53' }}
+  BUILD_ID: ${{ format('{0}_{1}_{2}_{3}', inputs.openwrt_release || '25.12.2', inputs.target || 'mediatek', inputs.subtarget || 'filogic', inputs.pkgarch || 'aarch64_cortex-a53') }}
   OPENWRT_SDK_VARIANT: gcc-14.3.0_musl
   AWG_KERNEL_TAG: v1.0.20260329-2
   AWG_KERNEL_HASH: db833b4bd2a464a43248f4603186b3d0d58c781ba49989a5b515451dcd3d8833
@@ -64,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
-          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}-${OPENWRT_PKGARCH}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/kmod-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
@@ -86,8 +87,8 @@ jobs:
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-kmod-amneziawg
-          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
+          name: openwrt-${{ env.BUILD_ID }}-kmod-amneziawg
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
 
   build-luci:
     name: luci-proto-amneziawg
@@ -115,7 +116,7 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
-          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}-${OPENWRT_PKGARCH}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/luci-proto-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
@@ -131,8 +132,8 @@ jobs:
       - name: Upload LuCI artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-luci-proto-amneziawg
-          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
+          name: openwrt-${{ env.BUILD_ID }}-luci-proto-amneziawg
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
 
   build-tools:
     name: amneziawg-tools
@@ -160,7 +161,7 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
-          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}-${OPENWRT_PKGARCH}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/amneziawg-tools "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
@@ -173,8 +174,8 @@ jobs:
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-amneziawg-tools
-          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
+          name: openwrt-${{ env.BUILD_ID }}-amneziawg-tools
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.apk
 
   release:
     name: Publish release
@@ -202,11 +203,12 @@ jobs:
           do
             src="$(find release -type f \( -name "${pkg}*.apk" -o -name "${pkg}_*.apk" \) | head -n1)"
             test -n "${src}"
-            cp "${src}" "release-assets/openwrt-${OPENWRT_RELEASE}-${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}-${pkg}.apk"
+            cp "${src}" "release-assets/openwrt-${BUILD_ID}-${pkg}.apk"
           done
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          name: ${{ env.BUILD_ID }}
           files: release-assets/*.apk

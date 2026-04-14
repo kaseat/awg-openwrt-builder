@@ -31,20 +31,24 @@ OpenWrt builder for AmneziaWG packages.
 Local build output:
 
 ```text
-dist/<openwrt_release>/<target>-<subtarget>/
+dist/<openwrt_release>/<target>-<subtarget>-<pkgarch>/
 ```
 
 GitHub Actions artifact names:
 
-- `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg`
-- `openwrt-25.12.2-mediatek-filogic-amneziawg-tools`
-- `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg`
 
 GitHub release assets:
 
-- `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk`
-- `openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk`
-- `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
+- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
+
+GitHub release title uses the same build id:
+
+- `25.12.2_mediatek_filogic_aarch64_cortex-a53`
 
 ## Install on router
 
@@ -56,11 +60,11 @@ Download the release assets and install them:
 TAG=<release-tag>
 
 curl -L -o /tmp/kmod-amneziawg.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk
 curl -L -o /tmp/amneziawg-tools.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk
 curl -L -o /tmp/luci-proto-amneziawg.apk \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk
 
 apk add --allow-untrusted \
   /tmp/kmod-amneziawg.apk \
