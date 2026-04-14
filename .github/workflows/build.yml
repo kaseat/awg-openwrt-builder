@@ -191,8 +191,17 @@ jobs:
           path: release
           merge-multiple: true
 
+      - name: Bundle packages
+        run: |
+          set -euo pipefail
+          bundle_name="openwrt-${OPENWRT_RELEASE}-${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}-amneziawg-packages"
+          mkdir -p bundle
+          find release -type f -name '*.apk' -exec cp {} bundle/ \;
+          (cd bundle && sha256sum *.apk > SHA256SUMS)
+          tar -czf "${bundle_name}.tar.gz" -C bundle .
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          files: release/*.apk
+          files: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-amneziawg-packages.tar.gz
