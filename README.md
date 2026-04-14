@@ -20,6 +20,15 @@ OpenWrt builder for AmneziaWG packages.
 - The upstream `amneziawg-tools` source tree.
 - A full OpenWrt source tree.
 
+## Router profiles
+
+These are the router tuples this repo is currently used for:
+
+| Name | LAN IP | Device | OpenWrt | target/subtarget | pkgarch | sdk_variant |
+|---|---|---|---|---|---|---|
+| `home` | `18.18.1.1` | BananaPi BPI-R3 | `24.10.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` |
+| `owrt-solntsevo` | `18.19.1.1` | Xiaomi Redmi Router AX6000 | `25.12.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
+
 ## Default build target
 
 - OpenWrt `25.12.2`
@@ -92,25 +101,40 @@ To build packages for a different OpenWrt router, you need five values:
 - `pkgarch`
 - `sdk_variant`
 
-Get them from the router or from the OpenWrt download page for that device.
+Use this order:
 
-From the router, run:
+1. On the router, run:
 
-```sh
-ubus call system board
-```
+   ```sh
+   ubus call system board
+   ```
 
-Use the OpenWrt release that matches the firmware on the device. For kernel packages, the release and target must match the router ABI.
+   Take:
+   - `openwrt_release` from `release.version`
+   - `target` from `release.target` before `/`
+   - `subtarget` from `release.target` after `/`
 
-Then run the GitHub Actions workflow manually and fill in the inputs:
+2. Open the matching OpenWrt download page for that release and tuple:
 
-- `openwrt_release`: for example `25.12.2`
-- `target`: for example `mediatek`
-- `subtarget`: for example `filogic`
-- `pkgarch`: for example `aarch64_cortex-a53`
-- `sdk_variant`: for example `gcc-14.3.0_musl` on OpenWrt 25.12.x, or `gcc-13.3.0_musl` on OpenWrt 24.10.x
+   ```text
+   https://downloads.openwrt.org/releases/<openwrt_release>/targets/<target>/<subtarget>/
+   ```
 
-If your second router is a different family, use its own target/subtarget/pkgarch tuple and matching `sdk_variant`. The workflow will build the same three packages for that tuple and publish the assets with the corresponding names.
+   Take:
+   - `sdk_variant` from the SDK tarball name, for example `gcc-14.3.0_musl` or `gcc-13.3.0_musl`
+   - `pkgarch` from the package architecture path under the release, for example `aarch64_cortex-a53`
+
+3. Fill in the GitHub Actions `workflow_dispatch` inputs with those exact values.
+
+Example for BPI-R3 on OpenWrt 24.10.2:
+
+- `openwrt_release = 24.10.2`
+- `target = mediatek`
+- `subtarget = filogic`
+- `pkgarch = aarch64_cortex-a53`
+- `sdk_variant = gcc-13.3.0_musl`
+
+For kernel packages, `openwrt_release`, `target`, `subtarget`, `pkgarch`, and `sdk_variant` must match the router firmware family exactly. If they do not, the kmod build will not fit that router.
 
 For published releases, use the hyphenated release id as the Git tag:
 
