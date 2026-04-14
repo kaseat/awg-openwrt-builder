@@ -340,3 +340,4 @@ proto_amneziawg_setup() {
 	proto_send_update "${config}"
 }
 
+add_protocol amneziawg
