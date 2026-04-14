@@ -1,67 +1,85 @@
 # awg-openwrt-builder
 
-Minimal OpenWrt builder for AmneziaWG packages.
+OpenWrt builder for AmneziaWG packages.
 
-What this repo contains:
-
-- GitHub Actions workflow.
-- Thin OpenWrt package wrappers.
-- Runtime glue for `amneziawg-tools` (`amneziawg.sh` and watchdog helper).
-- LuCI protocol support for AmneziaWG.
-
-What this repo does not vendor:
-
-- `amneziawg-linux-kernel-module` source tree.
-- `amneziawg-tools` source tree.
-- OpenWrt source tree.
-
-Default build target:
-
-- OpenWrt `25.12.2`
-- `mediatek/filogic`
-- `aarch64_cortex-a53`
-
-The workflow builds:
+## What it builds
 
 - `kmod-amneziawg`
 - `amneziawg-tools`
 - `luci-proto-amneziawg`
 
-Local build output is written under `dist/<openwrt_release>/<target>-<subtarget>/`.
-GitHub Actions artifacts follow the same naming scheme, for example:
+## What this repo contains
+
+- OpenWrt packaging wrappers for the three packages above.
+- GitHub Actions workflow that builds OpenWrt SDK packages.
+- Runtime glue for OpenWrt netifd in `amneziawg-tools`.
+
+## What this repo does not contain
+
+- The upstream `amneziawg-linux-kernel-module` source tree.
+- The upstream `amneziawg-tools` source tree.
+- A full OpenWrt source tree.
+
+## Default build target
+
+- OpenWrt `25.12.2`
+- `mediatek/filogic`
+- `aarch64_cortex-a53`
+
+## Output layout
+
+Local build output:
+
+```text
+dist/<openwrt_release>/<target>-<subtarget>/
+```
+
+GitHub Actions artifact names:
 
 - `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg`
 - `openwrt-25.12.2-mediatek-filogic-amneziawg-tools`
 - `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg`
 
-GitHub release publishes the same packages as individual assets:
+GitHub release assets:
 
 - `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk`
 - `openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk`
 - `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk`
 
-## Install On Router
+## Install on router
 
-On an OpenWrt 25.12 router with `apk`, download the three release assets and install them:
+This repo targets OpenWrt 25.12 routers with `apk`.
 
-`luci-proto-amneziawg` is the LuCI UI/protocol package. Install it if you want the AmneziaWG interface to show up in the web UI.
-
-```sh
-curl -L -o /tmp/kmod-amneziawg.apk https://github.com/kaseat/awg-openwrt-builder/releases/download/<release-tag>/openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk
-curl -L -o /tmp/amneziawg-tools.apk https://github.com/kaseat/awg-openwrt-builder/releases/download/<release-tag>/openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk
-curl -L -o /tmp/luci-proto-amneziawg.apk https://github.com/kaseat/awg-openwrt-builder/releases/download/<release-tag>/openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk
-
-apk add --allow-untrusted /tmp/kmod-amneziawg.apk /tmp/amneziawg-tools.apk /tmp/luci-proto-amneziawg.apk
-```
-
-Then reload networking:
+Download the release assets and install them:
 
 ```sh
+TAG=<release-tag>
+
+curl -L -o /tmp/kmod-amneziawg.apk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk
+curl -L -o /tmp/amneziawg-tools.apk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk
+curl -L -o /tmp/luci-proto-amneziawg.apk \
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg.apk
+
+apk add --allow-untrusted \
+  /tmp/kmod-amneziawg.apk \
+  /tmp/amneziawg-tools.apk \
+  /tmp/luci-proto-amneziawg.apk
+
 /etc/init.d/network restart
 ```
 
-If you only want the runtime protocol without LuCI, install `kmod-amneziawg.apk` and `amneziawg-tools.apk` only.
-
 Replace `<release-tag>` with the tag you want to install, for example `v0.0.13-test` or the latest published release.
 
-Because this repo only wraps upstream sources for OpenWrt packaging, you can add more package wrappers later without vendoring the upstream source trees here.
+If you do not need the LuCI interface, install only:
+
+```sh
+apk add --allow-untrusted /tmp/kmod-amneziawg.apk /tmp/amneziawg-tools.apk
+```
+
+## Notes
+
+- `luci-proto-amneziawg` is the LuCI protocol/UI package.
+- `amneziawg-tools` installs `/lib/netifd/proto/amneziawg.sh` and the `awg` control binary.
+- `kmod-amneziawg` is the kernel module that provides the actual tunnel device.
