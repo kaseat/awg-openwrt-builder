@@ -63,9 +63,7 @@ jobs:
             release_id="${openwrt_release}-${target}-${subtarget}-${pkgarch}"
           else
             tag="${GITHUB_REF_NAME}"
-            IFS='-' read -r openwrt_release target subtarget pkgarch <<EOF
-${tag}
-EOF
+            IFS='-' read -r openwrt_release target subtarget pkgarch <<< "${tag}"
             case "${openwrt_release}" in
               24.10.*) sdk_variant="gcc-13.3.0_musl" ;;
               25.12.*) sdk_variant="gcc-14.3.0_musl" ;;
