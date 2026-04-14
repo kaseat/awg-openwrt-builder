@@ -1,7 +1,7 @@
 .DS_Store
 bin/
 sdk/
-artifacts/
+dist/
 *.ipk
 *.tar.zst
 *.tar.gz

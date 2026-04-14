@@ -64,6 +64,7 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/kmod-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
@@ -79,14 +80,14 @@ jobs:
           make defconfig
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
-          mkdir -p ../artifacts
-          find bin -type f \( -name 'kmod-amneziawg-*.apk' -o -name 'kmod-amneziawg_*.apk' \) -exec cp {} ../artifacts/ \;
+          mkdir -p "../${dist_root}"
+          find bin -type f \( -name 'kmod-amneziawg-*.apk' -o -name 'kmod-amneziawg_*.apk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kmod-amneziawg-${{ github.ref_name || 'manual' }}
-          path: sdk/artifacts/*.apk
+          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-kmod-amneziawg
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
 
   build-luci:
     name: luci-proto-amneziawg
@@ -114,6 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/luci-proto-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
@@ -123,14 +125,14 @@ jobs:
           make defconfig
           make package/awgopenwrt/luci-proto-amneziawg/clean
           make package/awgopenwrt/luci-proto-amneziawg/compile -j"$(nproc)" V=s
-          mkdir -p ../artifacts
-          find bin -type f \( -name 'luci-proto-amneziawg-*.apk' -o -name 'luci-proto-amneziawg_*.apk' \) -exec cp {} ../artifacts/ \;
+          mkdir -p "../${dist_root}"
+          find bin -type f \( -name 'luci-proto-amneziawg-*.apk' -o -name 'luci-proto-amneziawg_*.apk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload LuCI artifact
         uses: actions/upload-artifact@v4
         with:
-          name: luci-proto-amneziawg-${{ github.ref_name || 'manual' }}
-          path: sdk/artifacts/*.apk
+          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-luci-proto-amneziawg
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
 
   build-tools:
     name: amneziawg-tools
@@ -158,20 +160,21 @@ jobs:
         run: |
           set -euo pipefail
           sdk_dir="$(cat .dir)"
+          dist_root="dist/${OPENWRT_RELEASE}/${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}"
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/amneziawg-tools "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
           make defconfig
           make package/awgopenwrt/amneziawg-tools/clean
           make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
-          mkdir -p ../artifacts
-          find bin -type f \( -name 'amneziawg-tools-*.apk' -o -name 'amneziawg-tools_*.apk' \) -exec cp {} ../artifacts/ \;
+          mkdir -p "../${dist_root}"
+          find bin -type f \( -name 'amneziawg-tools-*.apk' -o -name 'amneziawg-tools_*.apk' \) -exec cp {} "../${dist_root}/" \;
 
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
         with:
-          name: amneziawg-tools-${{ github.ref_name || 'manual' }}
-          path: sdk/artifacts/*.apk
+          name: openwrt-${{ env.OPENWRT_RELEASE }}-${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-amneziawg-tools
+          path: sdk/dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}/*.apk
 
   release:
     name: Publish release

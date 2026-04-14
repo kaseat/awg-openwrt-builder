@@ -26,4 +26,11 @@ The workflow builds:
 - `amneziawg-tools`
 - `luci-proto-amneziawg`
 
+Local build output is written under `dist/<openwrt_release>/<target>-<subtarget>/`.
+GitHub Actions artifacts follow the same naming scheme, for example:
+
+- `openwrt-25.12.2-mediatek-filogic-kmod-amneziawg`
+- `openwrt-25.12.2-mediatek-filogic-amneziawg-tools`
+- `openwrt-25.12.2-mediatek-filogic-luci-proto-amneziawg`
+
 You can extend it later with LuCI or additional protocols without changing the upstream source layout.
