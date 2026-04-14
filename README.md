@@ -44,6 +44,8 @@ GitHub release publishes the same packages as individual assets:
 
 On an OpenWrt 25.12 router with `apk`, download the three release assets and install them:
 
+`luci-proto-amneziawg` is the LuCI UI/protocol package. Install it if you want the AmneziaWG interface to show up in the web UI.
+
 ```sh
 curl -L -o /tmp/kmod-amneziawg.apk https://github.com/kaseat/awg-openwrt-builder/releases/download/<release-tag>/openwrt-25.12.2-mediatek-filogic-kmod-amneziawg.apk
 curl -L -o /tmp/amneziawg-tools.apk https://github.com/kaseat/awg-openwrt-builder/releases/download/<release-tag>/openwrt-25.12.2-mediatek-filogic-amneziawg-tools.apk
