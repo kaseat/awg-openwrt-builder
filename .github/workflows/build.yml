@@ -80,13 +80,13 @@ jobs:
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p ../artifacts
-          find bin -type f -name 'kmod-amneziawg_*.ipk' -exec cp {} ../artifacts/ \;
+          find bin -type f -name 'kmod-amneziawg_*.apk' -exec cp {} ../artifacts/ \;
 
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
         with:
           name: kmod-amneziawg-${{ github.ref_name || 'manual' }}
-          path: sdk/artifacts/*.ipk
+          path: sdk/artifacts/*.apk
 
   build-tools:
     name: amneziawg-tools
@@ -121,13 +121,13 @@ jobs:
           make package/awgopenwrt/amneziawg-tools/clean
           make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
           mkdir -p ../artifacts
-          find bin -type f -name 'amneziawg-tools_*.ipk' -exec cp {} ../artifacts/ \;
+          find bin -type f -name 'amneziawg-tools_*.apk' -exec cp {} ../artifacts/ \;
 
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
         with:
           name: amneziawg-tools-${{ github.ref_name || 'manual' }}
-          path: sdk/artifacts/*.ipk
+          path: sdk/artifacts/*.apk
 
   release:
     name: Publish release
@@ -147,4 +147,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          files: release/*.ipk
+          files: release/*.apk
