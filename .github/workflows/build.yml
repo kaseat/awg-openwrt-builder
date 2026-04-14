@@ -80,7 +80,7 @@ jobs:
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p ../artifacts
-          find bin -type f -name 'kmod-amneziawg_*.apk' -exec cp {} ../artifacts/ \;
+          find bin -type f \( -name 'kmod-amneziawg-*.apk' -o -name 'kmod-amneziawg_*.apk' \) -exec cp {} ../artifacts/ \;
 
       - name: Upload kmod artifact
         uses: actions/upload-artifact@v4
@@ -121,7 +121,7 @@ jobs:
           make package/awgopenwrt/amneziawg-tools/clean
           make package/awgopenwrt/amneziawg-tools/compile -j"$(nproc)" V=s
           mkdir -p ../artifacts
-          find bin -type f -name 'amneziawg-tools_*.apk' -exec cp {} ../artifacts/ \;
+          find bin -type f \( -name 'amneziawg-tools-*.apk' -o -name 'amneziawg-tools_*.apk' \) -exec cp {} ../artifacts/ \;
 
       - name: Upload userspace artifact
         uses: actions/upload-artifact@v4
