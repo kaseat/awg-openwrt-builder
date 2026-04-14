@@ -24,6 +24,6 @@ The workflow builds:
 
 - `kmod-amneziawg`
 - `amneziawg-tools`
+- `luci-proto-amneziawg`
 
 You can extend it later with LuCI or additional protocols without changing the upstream source layout.
-

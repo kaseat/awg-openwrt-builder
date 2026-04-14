@@ -88,6 +88,50 @@ jobs:
           name: kmod-amneziawg-${{ github.ref_name || 'manual' }}
           path: sdk/artifacts/*.apk
 
+  build-luci:
+    name: luci-proto-amneziawg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+        with:
+          path: builder
+
+      - name: Download OpenWrt SDK
+        run: |
+          set -euo pipefail
+          sdk_name="openwrt-sdk-${OPENWRT_RELEASE}-${OPENWRT_TARGET}-${OPENWRT_SUBTARGET}_${OPENWRT_SDK_VARIANT}.Linux-x86_64.tar.zst"
+          sdk_url="https://downloads.openwrt.org/releases/${OPENWRT_RELEASE}/targets/${OPENWRT_TARGET}/${OPENWRT_SUBTARGET}/${sdk_name}"
+          mkdir -p sdk
+          curl -L --fail --retry 3 --output sdk/sdk.tar.zst "${sdk_url}"
+          tar -I zstd -xf sdk/sdk.tar.zst -C sdk
+          sdk_dir="$(find "$PWD/sdk" -maxdepth 1 -type d -name 'openwrt-sdk-*' | head -n1)"
+          test -n "${sdk_dir}"
+          printf '%s\n' "${sdk_dir}" > sdk/.dir
+
+      - name: Build LuCI protocol package
+        working-directory: sdk
+        run: |
+          set -euo pipefail
+          sdk_dir="$(cat .dir)"
+          mkdir -p "${sdk_dir}/package/awgopenwrt"
+          cp -a ../builder/packages/luci-proto-amneziawg "${sdk_dir}/package/awgopenwrt/"
+          cd "${sdk_dir}"
+          {
+            echo "CONFIG_PACKAGE_luci-proto-amneziawg=m"
+          } >> .config
+          make defconfig
+          make package/awgopenwrt/luci-proto-amneziawg/clean
+          make package/awgopenwrt/luci-proto-amneziawg/compile -j"$(nproc)" V=s
+          mkdir -p ../artifacts
+          find bin -type f \( -name 'luci-proto-amneziawg-*.apk' -o -name 'luci-proto-amneziawg_*.apk' \) -exec cp {} ../artifacts/ \;
+
+      - name: Upload LuCI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-proto-amneziawg-${{ github.ref_name || 'manual' }}
+          path: sdk/artifacts/*.apk
+
   build-tools:
     name: amneziawg-tools
     runs-on: ubuntu-latest
@@ -133,6 +177,7 @@ jobs:
     name: Publish release
     needs:
       - build-kmod
+      - build-luci
       - build-tools
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest

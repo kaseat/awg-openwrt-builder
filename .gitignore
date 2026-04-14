@@ -1,9 +1,9 @@
 .DS_Store
 bin/
 sdk/
+artifacts/
 *.ipk
 *.tar.zst
 *.tar.gz
 *.manifest
 *.buildinfo
-
