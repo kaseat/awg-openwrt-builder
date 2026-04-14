@@ -64,4 +64,4 @@ If you only want the runtime protocol without LuCI, install `kmod-amneziawg.apk`
 
 Replace `<release-tag>` with the tag you want to install, for example `v0.0.13-test` or the latest published release.
 
-You can extend it later with LuCI or additional protocols without changing the upstream source layout.
+Because this repo only wraps upstream sources for OpenWrt packaging, you can add more package wrappers later without vendoring the upstream source trees here.
