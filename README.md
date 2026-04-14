@@ -48,7 +48,7 @@ GitHub release assets:
 
 GitHub release title uses the same build id:
 
-- `25.12.2_mediatek_filogic_aarch64_cortex-a53`
+- `25.12.2-mediatek-filogic-aarch64-cortex-a53`
 
 ## Install on router
 
@@ -74,7 +74,7 @@ apk add --allow-untrusted \
 /etc/init.d/network restart
 ```
 
-Replace `<release-tag>` with the tag you want to install, for example `v0.0.13-test` or the latest published release.
+Replace `<release-tag>` with the tag you want to install, for example `25.12.2-mediatek-filogic-aarch64-cortex-a53` or the latest published release.
 
 If you do not need the LuCI interface, install only:
 
@@ -109,6 +109,10 @@ Then run the GitHub Actions workflow manually and fill in the inputs:
 - `pkgarch`: for example `aarch64_cortex-a53`
 
 If your second router is a different family, use its own target/subtarget/pkgarch tuple. The workflow will build the same three packages for that tuple and publish the assets with the corresponding names.
+
+For published releases, use the hyphenated release id as the Git tag:
+
+- `25.12.2-mediatek-filogic-aarch64-cortex-a53`
 
 ## Notes
 
