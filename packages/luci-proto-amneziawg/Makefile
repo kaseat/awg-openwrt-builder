@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-proto-amneziawg
 PKG_VERSION:=1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_MAINTAINER:=Amnezia Admin <admin@amnezia.org>
 PKG_LICENSE:=Apache-2.0

@@ -14,6 +14,12 @@ function validateBase64(value) {
 	return true;
 }
 
+function safeTab(section, name, title) {
+	try {
+		section.tab(name, title);
+	} catch (e) {}
+}
+
 return network.registerProtocol("amneziawg", {
 	getI18n: function () {
 		return _("AmneziaWG VPN");
@@ -42,10 +48,10 @@ return network.registerProtocol("amneziawg", {
 	renderFormOptions: function (s) {
 		var o, ss;
 
-		s.tab("general", _("General"));
-		s.tab("advanced", _("Advanced"));
-		s.tab("amneziawg", _("AmneziaWG"));
-		s.tab("peers", _("Peers"));
+		safeTab(s, "general", _("General"));
+		safeTab(s, "advanced", _("Advanced"));
+		safeTab(s, "amneziawg", _("AmneziaWG"));
+		safeTab(s, "peers", _("Peers"));
 
 		o = s.taboption("general", form.Value, "private_key", _("Private Key"));
 		o.password = true;

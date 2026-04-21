@@ -26,8 +26,8 @@ These are the router tuples this repo is currently used for:
 
 | Name | LAN IP | Device | OpenWrt | target/subtarget | pkgarch | sdk_variant |
 |---|---|---|---|---|---|---|
-| `home` | `18.18.1.1` | BananaPi BPI-R3 | `24.10.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` |
-| `owrt-solntsevo` | `18.19.1.1` | Xiaomi Redmi Router AX6000 | `25.12.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
+| `msk-fili` | `18.18.1.1` | BananaPi BPI-R3 | `24.10.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` |
+| `msk-solntsevo` | `18.19.1.1` | Xiaomi Redmi Router AX6000 | `25.12.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
 
 ## Default build target
 

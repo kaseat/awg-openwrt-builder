@@ -96,12 +96,12 @@ proto_amneziawg_setup_peer() {
 	fi
 
 	echo "[Peer]" >> "${wg_cfg}"
-	echo "PublicKey=${public_key}" >> "${wg_cfg}"
+	echo "PublicKey = ${public_key}" >> "${wg_cfg}"
 	if [ "${preshared_key}" ]; then
-		echo "PresharedKey=${preshared_key}" >> "${wg_cfg}"
+		echo "PresharedKey = ${preshared_key}" >> "${wg_cfg}"
 	fi
 	for allowed_ip in $allowed_ips; do
-		echo "AllowedIPs=${allowed_ip}" >> "${wg_cfg}"
+		echo "AllowedIPs = ${allowed_ip}" >> "${wg_cfg}"
 	done
 	if [ "${endpoint_host}" ]; then
 		case "${endpoint_host}" in
@@ -117,10 +117,10 @@ proto_amneziawg_setup_peer() {
 		else
 			endpoint="${endpoint}:51820"
 		fi
-		echo "Endpoint=${endpoint}" >> "${wg_cfg}"
+		echo "Endpoint = ${endpoint}" >> "${wg_cfg}"
 	fi
 	if [ "${persistent_keepalive}" ]; then
-		echo "PersistentKeepalive=${persistent_keepalive}" >> "${wg_cfg}"
+		echo "PersistentKeepalive = ${persistent_keepalive}" >> "${wg_cfg}"
 	fi
 	if [ "${advanced_security}" -eq 1 ]; then
 		echo "AdvancedSecurity = on" >> "${wg_cfg}"
@@ -257,12 +257,12 @@ proto_amneziawg_setup() {
 	umask 077
 	mkdir -p "${wg_dir}"
 	echo "[Interface]" > "${wg_cfg}"
-	echo "PrivateKey=${private_key}" >> "${wg_cfg}"
+	echo "PrivateKey = ${private_key}" >> "${wg_cfg}"
 	if [ "${listen_port}" ]; then
-		echo "ListenPort=${listen_port}" >> "${wg_cfg}"
+		echo "ListenPort = ${listen_port}" >> "${wg_cfg}"
 	fi
 	if [ "${fwmark}" ]; then
-		echo "FwMark=${fwmark}" >> "${wg_cfg}"
+		echo "FwMark = ${fwmark}" >> "${wg_cfg}"
 	fi
 	if [ "${awg_jc}" ]; then
 		echo "Jc = ${awg_jc}" >> "${wg_cfg}"
@@ -338,6 +338,10 @@ proto_amneziawg_setup() {
 	done
 
 	proto_send_update "${config}"
+}
+
+proto_amneziawg_teardown() {
+	return 0
 }
 
 add_protocol amneziawg
