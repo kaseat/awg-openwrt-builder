@@ -165,6 +165,7 @@ return network.registerProtocol("amneziawg", {
 		o.optional = true;
 
 		o = ss.option(form.Value, "public_key", _("Public Key"));
+		o.modalonly = true;
 		o.password = false;
 		o.validate = function (sid, value) {
 			return validateBase64(value);
@@ -172,6 +173,7 @@ return network.registerProtocol("amneziawg", {
 		o.rmempty = false;
 
 		o = ss.option(form.Value, "preshared_key", _("Preshared Key"));
+		o.modalonly = true;
 		o.password = true;
 		o.validate = function (sid, value) {
 			return validateBase64(value);
@@ -183,23 +185,28 @@ return network.registerProtocol("amneziawg", {
 		o.optional = true;
 
 		o = ss.option(form.Value, "endpoint_host", _("Endpoint Host"));
+		o.modalonly = true;
 		o.placeholder = "vpn.example.com";
 		o.optional = true;
 
 		o = ss.option(form.Value, "endpoint_port", _("Endpoint Port"));
+		o.modalonly = true;
 		o.datatype = "port";
 		o.placeholder = "51820";
 		o.optional = true;
 
 		o = ss.option(form.Value, "persistent_keepalive", _("Persistent Keepalive"));
+		o.modalonly = true;
 		o.datatype = "uinteger";
 		o.placeholder = "25";
 		o.optional = true;
 
 		o = ss.option(form.Flag, "route_allowed_ips", _("Route allowed IPs"));
+		o.modalonly = true;
 		o.optional = true;
 
 		o = ss.option(form.Flag, "advanced_security", _("Advanced Security"));
+		o.modalonly = true;
 		o.optional = true;
 	}
 });
