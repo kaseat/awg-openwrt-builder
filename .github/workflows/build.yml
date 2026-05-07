@@ -5,7 +5,7 @@ on:
     inputs:
       openwrt_release:
         description: OpenWrt release
-        default: "25.12.2"
+        default: "25.12.3"
         required: true
       target:
         description: OpenWrt target
@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
 
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            openwrt_release="${{ inputs.openwrt_release || '25.12.2' }}"
+            openwrt_release="${{ inputs.openwrt_release || '25.12.3' }}"
             target="${{ inputs.target || 'mediatek' }}"
             subtarget="${{ inputs.subtarget || 'filogic' }}"
             pkgarch="${{ inputs.pkgarch || 'aarch64_cortex-a53' }}"

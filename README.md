@@ -28,10 +28,11 @@ These are the router tuples this repo is currently used for:
 |---|---|---|---|---|---|---|
 | `msk-fili` | `18.18.1.1` | BananaPi BPI-R3 | `24.10.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` |
 | `msk-solntsevo` | `18.19.1.1` | Xiaomi Redmi Router AX6000 | `25.12.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
+| `xiaomi-ax3000t` | n/a | Xiaomi Mi Router AX3000T | `25.12.3` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
 
 ## Default build target
 
-- OpenWrt `25.12.2`
+- OpenWrt `25.12.3`
 - `mediatek/filogic`
 - `aarch64_cortex-a53`
 
@@ -45,9 +46,9 @@ dist/<openwrt_release>/<target>-<subtarget>-<pkgarch>/
 
 GitHub Actions artifact names:
 
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools`
-- `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg`
 
 GitHub release assets:
 
@@ -57,10 +58,13 @@ GitHub release assets:
 - `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk`
 - `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
 - `openwrt-25.12.2_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.apk`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
+- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
 
 GitHub release title uses the same build id:
 
-- `25.12.2-mediatek-filogic-aarch64-cortex-a53`
+- `25.12.3-mediatek-filogic-aarch64-cortex-a53`
 
 ## Install on router
 
@@ -92,7 +96,7 @@ apk add --allow-untrusted \
 /etc/init.d/network restart
 ```
 
-Replace `<release-tag>` with the tag you want to install, for example `25.12.2-mediatek-filogic-aarch64-cortex-a53` or the latest published release.
+Replace `<release-tag>` with the tag you want to install, for example `25.12.3-mediatek-filogic-aarch64-cortex-a53` or the latest published release.
 
 If you do not need the LuCI interface, install only:
 
@@ -150,6 +154,7 @@ For kernel packages, `openwrt_release`, `target`, `subtarget`, `pkgarch`, and `s
 
 You can also trigger the same build by pushing a Git tag with the tuple name:
 
+- `25.12.3-mediatek-filogic-aarch64-cortex-a53`
 - `25.12.2-mediatek-filogic-aarch64-cortex-a53`
 - `24.10.2-mediatek-filogic-aarch64-cortex-a53`
 
