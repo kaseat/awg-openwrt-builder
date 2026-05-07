@@ -20,15 +20,14 @@ OpenWrt builder for AmneziaWG packages.
 - The upstream `amneziawg-tools` source tree.
 - A full OpenWrt source tree.
 
-## Router profiles
+## Supported build tuples
 
-These are the router tuples this repo is currently used for:
+These are generic OpenWrt SDK tuples that this repo can build.
 
-| Name | LAN IP | Device | OpenWrt | target/subtarget | pkgarch | sdk_variant |
-|---|---|---|---|---|---|---|
-| `msk-fili` | `18.18.1.1` | BananaPi BPI-R3 | `24.10.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` |
-| `msk-solntsevo` | `18.19.1.1` | Xiaomi Redmi Router AX6000 | `25.12.2` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
-| `xiaomi-ax3000t` | n/a | Xiaomi Mi Router AX3000T | `25.12.3` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` |
+| OpenWrt | target/subtarget | pkgarch | sdk_variant | package_ext |
+|---|---|---|---|---|
+| `24.10.x` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` | `ipk` |
+| `25.12.x` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` | `apk` |
 
 ## Default build target
 
@@ -139,14 +138,14 @@ Use this order:
 
 3. Fill in the GitHub Actions `workflow_dispatch` inputs with those exact values.
 
-Example for BPI-R3 on OpenWrt 24.10.2:
+Example for a `mediatek/filogic` router on OpenWrt 25.12.3:
 
-- `openwrt_release = 24.10.2`
+- `openwrt_release = 25.12.3`
 - `target = mediatek`
 - `subtarget = filogic`
 - `pkgarch = aarch64_cortex-a53`
-- `sdk_variant = gcc-13.3.0_musl`
-- `package_ext = ipk`
+- `sdk_variant = gcc-14.3.0_musl`
+- `package_ext = apk`
 
 The workflow derives `package_ext` automatically from `openwrt_release`; you do not enter it manually.
 
