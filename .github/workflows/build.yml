@@ -168,7 +168,7 @@ jobs:
           # Reset those defaults before expanding the package configuration.
           echo "SDK kmod defaults: $(grep -c '^config PACKAGE_kmod-' Config-build.in || true)"
           grep -A2 -m1 '^config PACKAGE_kmod-' Config-build.in || true
-          sed -i -E '/^config PACKAGE_kmod-[^ ]+$/,/^$/ s/^default [my]$/default n/' Config-build.in
+          sed -i -E '/^config PACKAGE_kmod-[^ ]+$/,/^$/ s/^[[:space:]]*default [my]$/\tdefault n/' Config-build.in
           grep -A2 -m1 '^config PACKAGE_kmod-' Config-build.in || true
           make defconfig
           echo "Initially selected kmods: $(grep -Ec '^CONFIG_PACKAGE_kmod-[^=]+=[my]$' .config || true)"
