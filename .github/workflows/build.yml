@@ -166,8 +166,12 @@ jobs:
           cd "${sdk_dir}"
           # The release SDK embeds buildbot kmod selections as defaults.
           # Reset those defaults before expanding the package configuration.
+          echo "SDK kmod defaults: $(grep -c '^config PACKAGE_kmod-' Config-build.in || true)"
+          grep -A2 -m1 '^config PACKAGE_kmod-' Config-build.in || true
           sed -i -E '/^config PACKAGE_kmod-[^ ]+$/,/^$/ s/^default [my]$/default n/' Config-build.in
+          grep -A2 -m1 '^config PACKAGE_kmod-' Config-build.in || true
           make defconfig
+          echo "Initially selected kmods: $(grep -Ec '^CONFIG_PACKAGE_kmod-[^=]+=[my]$' .config || true)"
           sed -i -E \
             -e 's/^CONFIG_PACKAGE_(kmod-[^=]+)=[my]$/# CONFIG_PACKAGE_\1 is not set/' \
             -e '/^(# )?CONFIG_ALL(_NONSHARED|_KMODS)?(=| is not set)/d' \
@@ -189,6 +193,7 @@ jobs:
             sed -i "/^# CONFIG_PACKAGE_${pkg} is not set$/d" .config
             echo "CONFIG_PACKAGE_${pkg}=m" >> .config
           done
+          echo "Selected kmods before second defconfig: $(grep -Ec '^CONFIG_PACKAGE_kmod-[^=]+=[my]$' .config || true)"
           make defconfig
           grep -qx '# CONFIG_ALL is not set' .config
           grep -qx '# CONFIG_ALL_NONSHARED is not set' .config
