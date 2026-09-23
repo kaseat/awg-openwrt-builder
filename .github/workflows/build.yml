@@ -164,16 +164,38 @@ jobs:
           mkdir -p "${sdk_dir}/package/awgopenwrt"
           cp -a ../builder/packages/kmod-amneziawg "${sdk_dir}/package/awgopenwrt/"
           cd "${sdk_dir}"
-          {
-            echo "CONFIG_PACKAGE_kmod-amneziawg=m"
-            echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m"
-            echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m"
-            echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m"
-            echo "CONFIG_PACKAGE_kmod-crypto-lib-curve25519=m"
-            echo "CONFIG_PACKAGE_kmod-udptunnel4=m"
-            echo "CONFIG_PACKAGE_kmod-udptunnel6=m"
-          } >> .config
+          # The release SDK defaults to building every kernel-module package.
+          # Expand its defaults once, then keep only AWG and its dependencies.
           make defconfig
+          sed -i -E \
+            -e 's/^CONFIG_PACKAGE_(kmod-[^=]+)=[my]$/# CONFIG_PACKAGE_\1 is not set/' \
+            -e '/^(# )?CONFIG_ALL(_NONSHARED|_KMODS)?(=| is not set)/d' \
+            .config
+          {
+            echo "# CONFIG_ALL is not set"
+            echo "# CONFIG_ALL_NONSHARED is not set"
+            echo "# CONFIG_ALL_KMODS is not set"
+          } >> .config
+          for pkg in \
+            kmod-amneziawg \
+            kmod-crypto-lib-chacha20 \
+            kmod-crypto-lib-chacha20poly1305 \
+            kmod-crypto-chacha20poly1305 \
+            kmod-crypto-lib-curve25519 \
+            kmod-udptunnel4 \
+            kmod-udptunnel6
+          do
+            sed -i "/^# CONFIG_PACKAGE_${pkg} is not set$/d" .config
+            echo "CONFIG_PACKAGE_${pkg}=m" >> .config
+          done
+          make defconfig
+          grep -qx '# CONFIG_ALL is not set' .config
+          grep -qx '# CONFIG_ALL_NONSHARED is not set' .config
+          grep -qx '# CONFIG_ALL_KMODS is not set' .config
+          grep -qx 'CONFIG_PACKAGE_kmod-amneziawg=m' .config
+          selected_kmods="$(grep -Ec '^CONFIG_PACKAGE_kmod-[^=]+=[my]$' .config || true)"
+          echo "Selected kernel-module packages: ${selected_kmods}"
+          test "${selected_kmods}" -le 100
           make package/awgopenwrt/kmod-amneziawg/clean
           make package/awgopenwrt/kmod-amneziawg/compile -j"$(nproc)" V=s
           mkdir -p "${dist_root}"
