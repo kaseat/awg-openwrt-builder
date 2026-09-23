@@ -14,6 +14,17 @@ function validateBase64(value) {
 	return true;
 }
 
+function validateUnsignedRange16(sid, value) {
+	if (!value) return true;
+	var match = value.match(/^(\d+)(?:-(\d+))?$/);
+	if (!match) return _("Expected a number or range such as 12-20");
+	var start = Number(match[1]);
+	var end = match[2] ? Number(match[2]) : start;
+	if (start > end || end > 65535)
+		return _("Range must be ordered and within 0-65535");
+	return true;
+}
+
 function safeTab(section, name, title) {
 	try {
 		section.tab(name, title);
@@ -147,6 +158,42 @@ return network.registerProtocol("amneziawg", {
 
 		o = s.taboption("amneziawg", form.Value, "awg_i5", _("I5"));
 		o.datatype = "string";
+		o.optional = true;
+
+		o = s.taboption("amneziawg", form.Value, "awg_header_protection_key", _("Header Protection Key"));
+		o.password = true;
+		o.optional = true;
+		o.description = _("AWG 3.1: use the same key on both ends and set S1-S4 to at least 12.");
+		o.validate = function (sid, value) { return validateBase64(value); };
+
+		o = s.taboption("amneziawg", form.Value, "awg_content_padding_addition", _("Content Padding Addition"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Value, "awg_rekey_after_time", _("Rekey After Time"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Value, "awg_rekey_timeout", _("Rekey Timeout"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Value, "awg_reject_after_time", _("Reject After Time"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Value, "awg_keepalive_timeout", _("Keepalive Timeout"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Value, "awg_max_handshake_attempts", _("Max Handshake Attempts"));
+		o.optional = true;
+		o.validate = validateUnsignedRange16;
+
+		o = s.taboption("amneziawg", form.Flag, "awg_random_trailers", _("Random Trailers"));
+		o.optional = true;
+
+		o = s.taboption("amneziawg", form.Flag, "awg_disable_cookies", _("Disable Cookies"));
 		o.optional = true;
 
 		o = s.taboption("peers", form.SectionValue, "_peers", form.GridSection, "amneziawg_%s".format(s.section));

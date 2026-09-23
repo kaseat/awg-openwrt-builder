@@ -1,6 +1,6 @@
 # awg-openwrt-builder
 
-OpenWrt builder for AmneziaWG packages.
+OpenWrt builder for AmneziaWG 3.1 packages.
 
 ## What it builds
 
@@ -22,16 +22,18 @@ OpenWrt builder for AmneziaWG packages.
 
 ## Supported build tuples
 
-These are generic OpenWrt SDK tuples that this repo can build.
+The current workflow builds AmneziaWG 3.1 for the OpenWrt 25.12 series.
 
 | OpenWrt | target/subtarget | pkgarch | sdk_variant | package_ext |
 |---|---|---|---|---|
-| `24.10.x` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-13.3.0_musl` | `ipk` |
 | `25.12.x` | `mediatek/filogic` | `aarch64_cortex-a53` | `gcc-14.3.0_musl` | `apk` |
+
+Earlier AWG 2.0 packages for OpenWrt `24.10.2`, `25.12.2`, and `25.12.3` remain in their existing GitHub releases.
 
 ## Default build target
 
-- OpenWrt `25.12.3`
+- AmneziaWG `3.1` (kernel source `v3.1.20260906`, tools source `v3.1.20260812`)
+- OpenWrt `25.12.5`
 - `mediatek/filogic`
 - `aarch64_cortex-a53`
 
@@ -45,11 +47,11 @@ dist/<openwrt_release>/<target>-<subtarget>-<pkgarch>/
 
 GitHub Actions artifact names:
 
-- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg`
-- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools`
-- `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg`
+- `openwrt-awg3.1_25.12.5_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg`
+- `openwrt-awg3.1_25.12.5_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools`
+- `openwrt-awg3.1_25.12.5_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg`
 
-GitHub release assets:
+Existing AWG 2.0 GitHub release assets:
 
 - `openwrt-24.10.2_mediatek_filogic_aarch64_cortex-a53-kmod-amneziawg.ipk`
 - `openwrt-24.10.2_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.ipk`
@@ -61,46 +63,58 @@ GitHub release assets:
 - `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-amneziawg-tools.apk`
 - `openwrt-25.12.3_mediatek_filogic_aarch64_cortex-a53-luci-proto-amneziawg.apk`
 
-GitHub release title uses the same build id:
+The AWG 3.1 release tag and title will use the protocol and build tuple:
 
-- `25.12.3-mediatek-filogic-aarch64-cortex-a53`
+- `awg3.1-25.12.5-mediatek-filogic-aarch64_cortex-a53`
 
 ## Install on router
 
-This repo publishes OpenWrt package archives. OpenWrt 24.10.x uses `.ipk`; OpenWrt 25.12.x uses `.apk`.
+AWG 3.1 builds for OpenWrt 25.12.x use `.apk`. Install only packages built for the router's exact firmware and kernel ABI.
 
-Download the release assets and install them:
+After publishing an AWG 3.1 release, download its assets and install them:
 
 ```sh
-TAG=<release-tag>
-PKG_EXT=<ipk-or-apk>
+TAG="awg3.1-25.12.5-mediatek-filogic-aarch64_cortex-a53"
+BUILD_ID="awg3.1_25.12.5_mediatek_filogic_aarch64_cortex-a53"
+PKG_EXT="apk"
 ```
 
-Use `ipk` for OpenWrt `24.10.x` and `apk` for OpenWrt `25.12.x`.
+For another 25.12 release or target, replace the tag and build id with matching values.
 
 ```sh
 
 curl -L -o /tmp/kmod-amneziawg.${PKG_EXT} \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-kmod-amneziawg.${PKG_EXT}
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-${BUILD_ID}-kmod-amneziawg.${PKG_EXT}
 curl -L -o /tmp/amneziawg-tools.${PKG_EXT} \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-amneziawg-tools.${PKG_EXT}
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-${BUILD_ID}-amneziawg-tools.${PKG_EXT}
 curl -L -o /tmp/luci-proto-amneziawg.${PKG_EXT} \
-  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-<release>_<target>_<subtarget>_<pkgarch>-luci-proto-amneziawg.${PKG_EXT}
+  https://github.com/kaseat/awg-openwrt-builder/releases/download/${TAG}/openwrt-${BUILD_ID}-luci-proto-amneziawg.${PKG_EXT}
 
-apk add --allow-untrusted \
-  /tmp/kmod-amneziawg.${PKG_EXT} \
-  /tmp/amneziawg-tools.${PKG_EXT} \
-  /tmp/luci-proto-amneziawg.${PKG_EXT}
+if [ "${PKG_EXT}" = "apk" ]; then
+  apk add --allow-untrusted \
+    /tmp/kmod-amneziawg.${PKG_EXT} \
+    /tmp/amneziawg-tools.${PKG_EXT} \
+    /tmp/luci-proto-amneziawg.${PKG_EXT}
+else
+  opkg install \
+    /tmp/kmod-amneziawg.${PKG_EXT} \
+    /tmp/amneziawg-tools.${PKG_EXT} \
+    /tmp/luci-proto-amneziawg.${PKG_EXT}
+fi
 
 /etc/init.d/network restart
 ```
 
-Replace `<release-tag>` with the tag you want to install, for example `25.12.3-mediatek-filogic-aarch64-cortex-a53` or the latest published release.
+The AWG 3.1 parameters are optional. Leaving them unset keeps an existing AWG 2.0-style configuration; enabling them requires a matching configuration on the remote endpoint.
 
 If you do not need the LuCI interface, install only:
 
 ```sh
-apk add --allow-untrusted /tmp/kmod-amneziawg.${PKG_EXT} /tmp/amneziawg-tools.${PKG_EXT}
+if [ "${PKG_EXT}" = "apk" ]; then
+  apk add --allow-untrusted /tmp/kmod-amneziawg.${PKG_EXT} /tmp/amneziawg-tools.${PKG_EXT}
+else
+  opkg install /tmp/kmod-amneziawg.${PKG_EXT} /tmp/amneziawg-tools.${PKG_EXT}
+fi
 ```
 
 ## Build for another router
@@ -138,9 +152,9 @@ Use this order:
 
 3. Fill in the GitHub Actions `workflow_dispatch` inputs with those exact values.
 
-Example for a `mediatek/filogic` router on OpenWrt 25.12.3:
+Example for a `mediatek/filogic` router on OpenWrt 25.12.5:
 
-- `openwrt_release = 25.12.3`
+- `openwrt_release = 25.12.5`
 - `target = mediatek`
 - `subtarget = filogic`
 - `pkgarch = aarch64_cortex-a53`
@@ -149,13 +163,11 @@ Example for a `mediatek/filogic` router on OpenWrt 25.12.3:
 
 The workflow derives `package_ext` automatically from `openwrt_release`; you do not enter it manually.
 
-For kernel packages, `openwrt_release`, `target`, `subtarget`, `pkgarch`, and `sdk_variant` must match the router firmware family exactly. If they do not, the kmod build will not fit that router.
+For kernel packages, the exact `kernel` ABI dependency in the built `.apk` must match the router firmware's `kernel` package. Matching only the OpenWrt version and CPU architecture is insufficient.
 
 You can also trigger the same build by pushing a Git tag with the tuple name:
 
-- `25.12.3-mediatek-filogic-aarch64-cortex-a53`
-- `25.12.2-mediatek-filogic-aarch64-cortex-a53`
-- `24.10.2-mediatek-filogic-aarch64-cortex-a53`
+- `awg3.1-25.12.5-mediatek-filogic-aarch64_cortex-a53`
 
 The workflow reads the tuple from the tag, derives the SDK variant automatically for the supported releases, and publishes a release with the same tuple name.
 
