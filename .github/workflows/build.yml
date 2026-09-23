@@ -5,7 +5,7 @@ on:
     inputs:
       openwrt_release:
         description: OpenWrt release
-        default: "25.12.3"
+        default: "25.12.5"
         required: true
       target:
         description: OpenWrt target
@@ -25,16 +25,16 @@ on:
         required: true
   push:
     tags:
-      - "*.*.*-*"
+      - "awg3.1-*"
 
 permissions:
   contents: write
 
 env:
-  AWG_KERNEL_TAG: v1.0.20260329-2
-  AWG_KERNEL_HASH: db833b4bd2a464a43248f4603186b3d0d58c781ba49989a5b515451dcd3d8833
-  AWG_TOOLS_TAG: v1.0.20260223
-  AWG_TOOLS_HASH: ab09cfafe6c1e9a6260964a8ba5cb2d657cc23862eb0c29253305e532ac40a16
+  AWG_KERNEL_TAG: v3.1.20260906
+  AWG_KERNEL_HASH: e32fa46f1b6f9e319c5261f0b0765c3a9261e40cb7c4616fd73500da961a2932
+  AWG_TOOLS_TAG: v3.1.20260812
+  AWG_TOOLS_HASH: dbd8ce0748d835d18f30bb76720246b7bfc80bd09cd17c379b1c59f683a18493
 
 jobs:
   resolve:
@@ -56,15 +56,23 @@ jobs:
           set -euo pipefail
 
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            openwrt_release="${{ inputs.openwrt_release || '25.12.3' }}"
+            openwrt_release="${{ inputs.openwrt_release || '25.12.5' }}"
             target="${{ inputs.target || 'mediatek' }}"
             subtarget="${{ inputs.subtarget || 'filogic' }}"
             pkgarch="${{ inputs.pkgarch || 'aarch64_cortex-a53' }}"
             sdk_variant="${{ inputs.sdk_variant || 'gcc-14.3.0_musl' }}"
-            release_id="${openwrt_release}-${target}-${subtarget}-${pkgarch}"
+            release_id="awg3.1-${openwrt_release}-${target}-${subtarget}-${pkgarch}"
             case "${openwrt_release}" in
-              24.10.*) package_ext="ipk" ;;
-              25.12.*) package_ext="apk" ;;
+              25.12.*)
+                package_ext="apk"
+                case "${sdk_variant}" in
+                  gcc-14.*_musl) ;;
+                  *)
+                    echo "OpenWrt ${openwrt_release} expects a gcc-14.x_musl SDK variant, got: ${sdk_variant}" >&2
+                    exit 1
+                    ;;
+                esac
+                ;;
               *)
                 echo "Unsupported OpenWrt release: ${openwrt_release}" >&2
                 exit 1
@@ -72,12 +80,26 @@ jobs:
             esac
           else
             tag="${GITHUB_REF_NAME}"
-            IFS='-' read -r openwrt_release target subtarget pkgarch <<< "${tag}"
-            case "${openwrt_release}" in
-              24.10.*)
-                sdk_variant="gcc-13.3.0_musl"
-                package_ext="ipk"
+            case "${tag}" in
+              awg3.1-*) ;;
+              *)
+                echo "Invalid build tag: ${tag}; expected awg3.1-<release>-<target>-<subtarget>-<pkgarch>" >&2
+                exit 1
                 ;;
+            esac
+            tuple="${tag#awg3.1-}"
+            case "${tuple}" in
+              *-*-*-*) ;;
+              *)
+                echo "Invalid build tag: ${tag}; expected awg3.1-<release>-<target>-<subtarget>-<pkgarch>" >&2
+                exit 1
+                ;;
+            esac
+            IFS='-' read -r openwrt_release target subtarget pkgarch <<< "${tuple}"
+            for value in "${openwrt_release}" "${target}" "${subtarget}" "${pkgarch}"; do
+              test -n "${value}"
+            done
+            case "${openwrt_release}" in
               25.12.*)
                 sdk_variant="gcc-14.3.0_musl"
                 package_ext="apk"
@@ -90,7 +112,7 @@ jobs:
             release_id="${tag}"
           fi
 
-          build_id="${openwrt_release}_${target}_${subtarget}_${pkgarch}"
+          build_id="awg3.1_${openwrt_release}_${target}_${subtarget}_${pkgarch}"
           {
             echo "openwrt_release=${openwrt_release}"
             echo "target=${target}"
@@ -162,6 +184,7 @@ jobs:
         with:
           name: openwrt-${{ env.BUILD_ID }}-kmod-amneziawg
           path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
+          if-no-files-found: error
 
   build-luci:
     name: luci-proto-amneziawg
@@ -217,6 +240,7 @@ jobs:
         with:
           name: openwrt-${{ env.BUILD_ID }}-luci-proto-amneziawg
           path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
+          if-no-files-found: error
 
   build-tools:
     name: amneziawg-tools
@@ -269,6 +293,7 @@ jobs:
         with:
           name: openwrt-${{ env.BUILD_ID }}-amneziawg-tools
           path: "dist/${{ env.OPENWRT_RELEASE }}/${{ env.OPENWRT_TARGET }}-${{ env.OPENWRT_SUBTARGET }}-${{ env.OPENWRT_PKGARCH }}/*.${{ env.OPENWRT_PACKAGE_EXT }}"
+          if-no-files-found: error
 
   release:
     name: Publish release
