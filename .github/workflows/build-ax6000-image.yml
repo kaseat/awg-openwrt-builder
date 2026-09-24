@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - firmware/ax6000-25.12.5
+    tags:
+      - firmware-ax6000-25.12.5-awg3.1
     paths:
       - .github/workflows/build-ax6000-image.yml
       - scripts/build-ax6000-image.sh
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   image:
@@ -28,3 +30,12 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+      - name: Publish firmware release
+        if: startsWith(github.ref, 'refs/tags/firmware-ax6000-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title 'OpenWrt 25.12.5 AX6000 stock layout + AWG 3.1' \
+            --notes 'Custom package-only sysupgrade image for Xiaomi Redmi AX6000 stock layout. Router configuration and private keys are not included. Verify SHA256SUMS before flashing. This image has not been tested on the router.'
