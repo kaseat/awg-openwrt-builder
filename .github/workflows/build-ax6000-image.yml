@@ -1,0 +1,41 @@
+name: Build AX6000 OpenWrt 25.12.5 image
+
+on:
+  push:
+    branches:
+      - firmware/ax6000-25.12.5
+    tags:
+      - firmware-ax6000-25.12.5-awg3.1
+    paths:
+      - .github/workflows/build-ax6000-image.yml
+      - scripts/build-ax6000-image.sh
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  image:
+    name: AX6000 stock-layout sysupgrade image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and verify image
+        run: bash scripts/build-ax6000-image.sh
+      - name: Upload firmware and manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-25.12.5-ax6000-stock-awg3.1
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish firmware release
+        if: startsWith(github.ref, 'refs/tags/firmware-ax6000-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title 'OpenWrt 25.12.5 AX6000 stock layout + AWG 3.1' \
+            --notes 'Custom package-only sysupgrade image for Xiaomi Redmi AX6000 stock layout. Router configuration and private keys are not included. Verify SHA256SUMS before flashing. This image has not been tested on the router.'
