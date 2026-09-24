@@ -62,7 +62,16 @@ fi
 image_dir="${ib_root}/bin/targets/${target}/${subtarget}"
 image="$(find "${image_dir}" -maxdepth 1 -type f -name '*xiaomi_redmi-router-ax6000-stock*sysupgrade.bin' -print -quit)"
 test -n "${image}"
+case "$(basename "${image}")" in
+  *soncevo-awg31*stock*sysupgrade.bin) ;;
+  *) echo "Unexpected image name: ${image}" >&2; exit 1 ;;
+esac
 cp "${image}" "${dist_dir}/"
 cd "${dist_dir}"
 sha256sum "$(basename "${image}")" > SHA256SUMS
+sha256sum -c SHA256SUMS
+echo 'Verified image packages:'
+grep -E '^(amneziawg-tools|kmod-amneziawg|luci-proto-amneziawg|dnsmasq-full|luci|luci-ssl|curl|coreutils-sha256sum)[[:space:]]' installed-packages.manifest
+echo 'Firmware SHA256:'
+cat SHA256SUMS
 ls -lh .
